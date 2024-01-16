@@ -1,0 +1,157 @@
+---
+title: "Spatial Memory Game Results and Plots"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Results
+```{r files, include=FALSE}
+#library lme4 and lmertest
+library(lme4)
+library(lmerTest)
+library(ggplot2)
+
+
+#read-in files
+thisThatnoStick <- read.csv("thisThat.csv")
+hereTherenoStick <- read.csv("hereThere.csv")
+nearFarnoStick <- read.csv("nearFar.csv")
+thisThatStick <- read.csv("thisthatstick.csv")
+hereThereStick <- read.csv("heretherestick.csv")
+nearFarStick <- read.csv("nearfarstick.csv")
+
+thisThat <- rbind(thisThatnoStick, thisThatStick)
+hereThere <- rbind(hereTherenoStick, hereThereStick)
+nearFar <- rbind(nearFarnoStick, nearFarStick)
+
+thisThatFirstQuad <- subset(thisThat, thisThat$quadrant == 1)
+hereThereFirstQuad <- subset(hereThere, hereThere$quadrant == 1)
+nearFarFirstQuad <- subset(nearFar, nearFar$quadrant == 1)
+
+thisThatSecondQuad <- subset(thisThat, thisThat$quadrant == 2)
+hereThereSecondQuad <- subset(hereThere, hereThere$quadrant == 2)
+nearFarSecondQuad <- subset(nearFar, nearFar$quadrant == 2)
+
+thisThatThirdQuad <- subset(thisThat, thisThat$quadrant == 3)
+hereThereThirdQuad <- subset(hereThere, hereThere$quadrant == 3)
+nearFarThirdQuad <- subset(nearFar, nearFar$quadrant == 3)
+
+thisThatFourthQuad <- subset(thisThat, thisThat$quadrant == 4)
+hereThereFourthQuad <- subset(hereThere, hereThere$quadrant == 4)
+nearFarFourthQuad <- subset(nearFar, nearFar$quadrant == 4)
+
+thisThat$dot <- factor(thisThat$dot)
+hereThere$dot <- factor(hereThere$dot)
+nearFar$dot <- factor(nearFar$dot)
+
+
+
+```
+
+```{r}
+ggplot(thisThat, aes(x = dot, y = proximal, group = stick, color = stick)) +
+  geom_line(stat="summary", fun = "mean", size=1) +
+  #geom_errorbar(aes(ymin=This-se, ymax=This+se), width=0.2, colour="black", alpha=.9, size=.5) +
+  theme_classic()
+
+ggplot(hereThere, aes(x = dot, y = proximal, group = stick, color = stick)) +
+  geom_line(stat="summary", fun = "mean", size=1) +
+  #geom_errorbar(aes(ymin=This-se, ymax=This+se), width=0.2, colour="black", alpha=.9, size=.5) +
+  theme_classic()
+
+
+ggplot(nearFar, aes(x = dot, y = proximal, group = stick, color = stick)) +
+  geom_line(stat="summary", fun = "mean", size=1) +
+  #geom_errorbar(aes(ymin=This-se, ymax=This+se), width=0.2, colour="black", alpha=.9, size=.5) +
+  theme_classic()
+```
+
+
+THIS/THAT
+
+
+
+```{r thisThat}
+mod <- glmer(proximal ~  quadrant * stick + (1|id), data = thisThat,
+                     family = binomial)
+summary(mod)
+```
+
+HERE/THERE
+```{r hereThere}
+mod <- glmer(proximal ~  quadrant * stick + (1|id), data = hereThere,
+                     family = binomial)
+summary(mod)
+```
+
+NEAR/FAR
+```{r nearFar}
+mod <- glmer(proximal ~  quadrant * stick + (1|id), data = nearFar,
+                     family = binomial)
+summary(mod)
+```
+
+THIS/THAT BY QUADRANT
+```{r thisthatquad}
+firstQuadMod <- glmer(proximal ~ stick + (1|id), data = thisThatFirstQuad,
+                      family = binomial)
+summary(firstQuadMod)
+
+secondQuadMod <- glmer(proximal ~ stick + (1|id), data = thisThatSecondQuad,
+                      family = binomial)
+summary(secondQuadMod)
+
+thirdQuadMod <- glmer(proximal ~ stick + (1|id), data = thisThatThirdQuad,
+                       family = binomial)
+summary(thirdQuadMod)
+
+fourthQuadMod <- glmer(proximal ~ stick + (1|id), data = thisThatFourthQuad,
+                       family = binomial)
+summary(fourthQuadMod)
+
+```
+
+
+HERE/THERE BY QUADRANT
+```{r heretherequad}
+firstQuadMod <- glmer(proximal ~ stick + (1|id), data = hereThereFirstQuad,
+                      family = binomial)
+summary(firstQuadMod)
+
+secondQuadMod <- glmer(proximal ~ stick + (1|id), data = hereThereSecondQuad,
+                      family = binomial)
+summary(secondQuadMod)
+
+thirdQuadMod <- glmer(proximal ~ stick + (1|id), data = hereThereThirdQuad,
+                       family = binomial)
+summary(thirdQuadMod)
+
+fourthQuadMod <- glmer(proximal ~ stick + (1|id), data = hereThereFourthQuad,
+                       family = binomial)
+summary(fourthQuadMod)
+
+```
+
+
+NEAR/FAR BY QUADRANT
+```{r nearfarquad}
+#firstQuadMod <- glmer(proximal ~ stick + (1|id), data = nearFarFirstQuad,
+                     # family = binomial)
+#summary(firstQuadMod)
+
+secondQuadMod <- glmer(proximal ~ stick + (1|id), data = nearFarSecondQuad,
+                      family = binomial)
+summary(secondQuadMod)
+
+thirdQuadMod <- glmer(proximal ~ stick + (1|id), data = nearFarThirdQuad,
+                       family = binomial)
+summary(thirdQuadMod)
+
+fourthQuadMod <- glmer(proximal ~ stick + (1|id), data = nearFarFourthQuad,
+                       family = binomial)
+summary(fourthQuadMod)
+
+```

@@ -1,0 +1,115 @@
+---
+title: "contrast"
+output: html_document
+---
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(lme4)
+library(lmerTest)
+library(ggplot2)
+
+summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
+                      conf.interval=.95, .drop=TRUE) {
+  library(plyr)
+  
+  # New version of length which can handle NA's: if na.rm==T, don't count them
+  length2 <- function (x, na.rm=FALSE) {
+    if (na.rm) sum(!is.na(x))
+    else       length(x)
+  }
+  
+  # This does the summary. For each group's data frame, return a vector with
+  # N, mean, and sd
+  datac <- ddply(data, groupvars, .drop=.drop,
+                 .fun = function(xx, col) {
+                   c(N    = length2(xx[[col]], na.rm=na.rm),
+                     mean = mean   (xx[[col]], na.rm=na.rm),
+                     sd   = sd     (xx[[col]], na.rm=na.rm)
+                   )
+                 },
+                 measurevar
+  )
+  
+  # Rename the "mean" column    
+  datac <- rename(datac, c("mean" = measurevar))
+  
+  datac$se <- datac$sd / sqrt(datac$N)  # Calculate standard error of the mean
+  
+  # Confidence interval multiplier for standard error
+  # Calculate t-statistic for confidence interval: 
+  # e.g., if conf.interval is .95, use .975 (above/below), and use df=N-1
+  ciMult <- qt(conf.interval/2 + .5, datac$N-1)
+  datac$ci <- datac$se * ciMult
+  
+  return(datac)
+}
+
+
+```
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+contrast <- read.csv("SDcontrast.csv")
+contrast$this <- contrast$this * 100
+contrast <- subset(contrast, contrast$Participant != 202 & contrast$Participant != 208)
+contrast <- na.omit(contrast)
+liteOne <- subset(contrast, Loc1 == 1)
+liteTwo <- subset(contrast, Loc1 == 2)
+liteThree <- subset(contrast, Loc1 == 3)
+liteFour <- subset(contrast, Loc1 == 4)
+liteFive <- subset(contrast, Loc1 == 5)
+liteSix <- subset(contrast, Loc1 == 6)
+liteSeven <- subset(contrast, Loc1 == 7)
+liteEight <- subset(contrast, Loc1 == 8)
+liteNine <- subset(contrast, Loc1 == 9)
+
+```
+
+Models  
+this -> this=1, that=0  
+distance -> absolute distance between current and previous light  
+nearFar -> previous light, nearer=-1, farther=1
+
+```{r}
+modLiteResponse <- glmer(this ~ distance * nearFar + (1|Participant), data = liteThree, family = binomial)
+summary(modLiteResponse)
+
+modLiteResponse <- glmer(this ~ distance * nearFar + (1|Participant), data = liteFour, family = binomial)
+summary(modLiteResponse)
+
+modLiteResponse <- glmer(this ~ distance * nearFar + (1|Participant), data = liteFive, family = binomial)
+summary(modLiteResponse)
+```
+
+Plots
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+con_plot <- summarySE(contrast, measurevar="this", groupvars=c("Loc1","Last"))
+
+con_plot$Location <- factor(con_plot$Loc1)
+
+
+con_plot$Previous <- factor(con_plot$Last)
+ggplot(con_plot, aes(x = Location, y = this, group = Previous, colour = Previous)) +
+  geom_line(stat="summary", fun = "mean", size=1) +
+  geom_errorbar(aes(ymin=this-se, ymax=this+se), width=0.2, colour="black", alpha=.9, size=.5) +
+  ggtitle("Percentage of This Responses by Location and Previous Location") +
+  theme_classic()
+
+
+contrast$nearFarP <- factor(contrast$nearFar)
+contrast$distanceP <- factor(contrast$distance)
+ggplot(contrast, aes(x = distanceP, y = this, group = nearFarP, colour = nearFarP)) +
+  geom_line(stat="summary", fun = "mean", size=1) +
+  ylim(0,1) +
+  ggtitle("All locations") +
+  theme_classic()
+
+liteFour$nearFarP <- factor(liteFour$nearFar)
+liteFour$distanceP <- factor(liteFour$distance)
+ggplot(liteFour, aes(x = distanceP, y = this, group = nearFarP, colour = nearFarP)) +
+  geom_line(stat="summary", fun = "mean", size=1) +
+  ylim(0,1) +
+  ggtitle("Light Four")+
+  theme_classic()
+```

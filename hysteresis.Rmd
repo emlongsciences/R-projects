@@ -1,0 +1,115 @@
+---
+title: "hysteresis"
+output: html_document
+---
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(lme4)
+library(lmerTest)
+library(ggplot2)
+
+summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
+                      conf.interval=.95, .drop=TRUE) {
+  library(plyr)
+  
+  # New version of length which can handle NA's: if na.rm==T, don't count them
+  length2 <- function (x, na.rm=FALSE) {
+    if (na.rm) sum(!is.na(x))
+    else       length(x)
+  }
+  
+  # This does the summary. For each group's data frame, return a vector with
+  # N, mean, and sd
+  datac <- ddply(data, groupvars, .drop=.drop,
+                 .fun = function(xx, col) {
+                   c(N    = length2(xx[[col]], na.rm=na.rm),
+                     mean = mean   (xx[[col]], na.rm=na.rm),
+                     sd   = sd     (xx[[col]], na.rm=na.rm)
+                   )
+                 },
+                 measurevar
+  )
+  
+  # Rename the "mean" column    
+  datac <- rename(datac, c("mean" = measurevar))
+  
+  datac$se <- datac$sd / sqrt(datac$N)  # Calculate standard error of the mean
+  
+  # Confidence interval multiplier for standard error
+  # Calculate t-statistic for confidence interval: 
+  # e.g., if conf.interval is .95, use .975 (above/below), and use df=N-1
+  ciMult <- qt(conf.interval/2 + .5, datac$N-1)
+  datac$ci <- datac$se * ciMult
+  
+  return(datac)
+}
+
+
+```
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+hys <- read.csv("hysteresis.csv")
+hys <- na.omit(hys)
+hys$That <- as.integer(hys$That)
+randhys <- subset(hys, hys$Random == 1)
+notrandhys <- subset(hys, hys$Random == -1)
+liteOne <- subset(notrandhys, Location == 1)
+liteTwo <- subset(notrandhys, Location == 2)
+liteThree <- subset(notrandhys, Location == 3)
+liteFour <- subset(notrandhys, Location == 4)
+liteFive <- subset(notrandhys, Location == 5)
+liteSix <- subset(notrandhys, Location == 6)
+liteSeven <- subset(notrandhys, Location == 7)
+liteEight <- subset(notrandhys, Location == 8)
+liteNine <- subset(notrandhys, Location == 9)
+
+```
+
+Models  
+this -> this=1, that=0  
+In -> Trials where lights were coming in = 1, out = -1
+
+```{r}
+modLiteResponse <- glmer(This ~ In + (1|Participant), data = liteThree, family = binomial)
+summary(modLiteResponse)
+
+
+modLiteResponse <- glmer(This ~ In * Location + (1|Participant), data = hys, family = binomial)
+summary(modLiteResponse)
+
+modLiteResponse <- glmer(This ~ In + (1|Participant), data = liteFour, family = binomial)
+summary(modLiteResponse)
+
+modLiteResponse <- glmer(This ~ In + (1|Participant), data = liteFive, family = binomial)
+summary(modLiteResponse)
+```
+
+Plots
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+hy_plot <- summarySE(hys, measurevar="This", groupvars=c("Location","Block"))
+ 
+hy_plot$Location <- factor(hy_plot$Location)
+hy_plot$This <- hy_plot$This * 100
+hy_plot$se <- hy_plot$se * 100
+
+ggplot(hy_plot, aes(x = Location, y = This, group = Block, color = Block)) +
+  geom_line(stat="summary", fun = "mean", size=1) +
+  geom_errorbar(aes(ymin=This-se, ymax=This+se), width=0.2, colour="black", alpha=.9, size=.5) +
+  ggtitle("Percentage of This By Distance and Direction") +
+  theme_classic()
+
+
+
+hy_plotrand <- summarySE(randhys, measurevar="This", groupvars=c("Location","Block"))
+
+hy_plotrand$Location <- factor(hy_plotrand$Location)
+
+
+ggplot(hy_plotrand, aes(x = Location, y = This, group = 1)) +
+  geom_line(stat="summary", fun = "mean", size=1) +
+  geom_errorbar(aes(ymin=This-se, ymax=This+se), width=0.2, colour="black", alpha=.9, size=.5) +
+  ggtitle("Random Trials") +
+  theme_classic()
+```

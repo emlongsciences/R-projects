@@ -1,0 +1,554 @@
+---
+title: "tapping task - participant 811"
+output: html_document
+---
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(reshape2)
+library(gridExtra)
+library(tseries)
+h <- read.csv("814.csv")
+
+#reshape data
+newh <- melt(h, id.vars = c("Subject"))
+newh <- na.omit(subset(newh,newh$value != "NULL"))
+newh$value <- as.integer(newh$value)
+
+#create subsets for each bpm
+newh40 <- newh[grep("kp40RT", newh$variable),]
+newh45 <- newh[grep("kp45RT", newh$variable),]
+newh50 <- newh[grep("kp50RT", newh$variable),]
+newh55 <- newh[grep("kp55RT", newh$variable),]
+newh60 <- newh[grep("kp60RT", newh$variable),]
+newh65 <- newh[grep("kp65RT", newh$variable),]
+newh70 <- newh[grep("kp70RT", newh$variable),]
+newh80 <- newh[grep("kp80RT", newh$variable),]
+
+#sort values if needed
+newh40 <- newh40[order(newh40$value),]
+newh45 <- newh45[order(newh45$value),]
+newh50 <- newh50[order(newh50$value),]
+newh55 <- newh55[order(newh55$value),]
+newh60 <- newh60[order(newh60$value),]
+newh65 <- newh65[order(newh65$value),]
+newh70 <- newh70[order(newh70$value),]
+newh80 <- newh80[order(newh80$value),]
+
+```
+
+error plots
+
+```{r,echo=FALSE}
+newh40$error <- 0
+for (i in 2:length(newh40$variable))
+  newh40$error[i] <- (newh40$value[i]-newh40$value[i-1]-1500)
+
+newh45$error <- 0
+for (i in 2:length(newh45$variable))
+  newh45$error[i] <- (newh45$value[i]-newh45$value[i-1]-1333)
+
+newh50$error <- 0
+for (i in 2:length(newh50$variable))
+  newh50$error[i] <- (newh50$value[i]-newh50$value[i-1]-1200)
+
+newh55$error <- 0
+for (i in 2:length(newh55$variable))
+  newh55$error[i] <- (newh55$value[i]-newh55$value[i-1]-1091)
+
+newh60$error <- 0
+for (i in 2:length(newh60$variable))
+  newh60$error[i] <- (newh60$value[i]-newh60$value[i-1]-1000)
+
+newh65$error <- 0
+for (i in 2:length(newh65$variable))
+  newh65$error[i] <- (newh65$value[i]-newh65$value[i-1]-923)
+
+newh70$error <- 0
+for (i in 2:length(newh70$variable))
+  newh70$error[i] <- (newh70$value[i]-newh70$value[i-1]-857)
+
+newh80$error <- 0
+for (i in 2:length(newh80$variable))
+  newh80$error[i] <- (newh80$value[i]-newh80$value[i-1]-750)
+
+newh40$tap <- 1:length(newh40$variable)
+newh45$tap <- 1:length(newh45$variable)
+newh50$tap <- 1:length(newh50$variable)
+newh55$tap <- 1:length(newh55$variable)
+newh60$tap <- 1:length(newh60$variable)
+newh65$tap <- 1:length(newh65$variable)
+newh70$tap <- 1:length(newh70$variable)
+newh80$tap <- 1:length(newh80$variable)
+
+
+
+#plots
+
+
+
+p40 <- ggplot(newh40, aes(x = tap, y = error)) +
+  geom_line() +
+  ggtitle("40bpm") +
+  ylim(-1000,1000) +
+  theme_classic()
+
+p45 <- ggplot(newh45, aes(x = tap, y = error)) +
+  geom_line() +
+  ggtitle("45bpm") +
+  ylim(-1000,1000) +
+  theme_classic()
+
+p50 <- ggplot(newh50, aes(x = tap, y = error)) +
+  geom_line() +
+  ggtitle("50bpm") +
+  ylim(-1000,1000) +
+  theme_classic()
+
+p55 <- ggplot(newh55, aes(x = tap, y = error)) +
+  geom_line() +
+  ggtitle("55bpm") +
+  ylim(-1000,1000) +
+  theme_classic()
+
+p60 <- ggplot(newh60, aes(x = tap, y = error)) +
+  geom_line() +
+  ggtitle("60bpm") +
+  ylim(-1000,1000) +
+  theme_classic()
+
+p65 <- ggplot(newh65, aes(x = tap, y = error)) +
+  geom_line() +
+  ggtitle("65bpm") +
+  ylim(-1000,1000) +
+  theme_classic()
+
+p70 <- ggplot(newh70, aes(x = tap, y = error)) +
+  geom_line() +
+  ggtitle("70bpm") +
+  ylim(-1000,1000) +
+  theme_classic()
+
+p80 <- ggplot(newh80, aes(x = tap, y = error)) +
+  geom_line() +
+  ggtitle("80bpm") +
+  ylim(-1000,1000) +
+  theme_classic()
+
+
+#arrange plots in one window
+errorPlots <- grid.arrange(p40, p45, p50, p55, p60, p65, p70, p80, nrow = 2)
+
+```
+
+autocorrelations and coefficients of variation
+
+```{r,echo=FALSE}
+
+err40 <- subset(newh40$error, newh40$error != 0 )
+err45 <- subset(newh45$error, newh45$error != 0 )
+err50 <- subset(newh50$error, newh50$error != 0 )
+err55 <- subset(newh55$error, newh55$error != 0 )
+err60 <- subset(newh60$error, newh60$error != 0 )
+err65 <- subset(newh65$error, newh65$error != 0 )
+err70 <- subset(newh70$error, newh70$error != 0 )
+err80 <- subset(newh80$error, newh80$error != 0 )
+
+err40 <- err40 + 1500
+err45 <- err45 + 1333
+err50 <- err50 + 1200
+err55 <- err55 + 1091
+err60 <- err60 + 1000
+err65 <- err65 + 923
+err70 <- err70 + 857
+err80 <- err80 + 750
+
+par(mfrow=c(2,4))
+t40 <- acf(err40, lag =5,pl = FALSE)
+t45 <- acf(err45, lag =5,pl = FALSE)
+t50 <- acf(err50, lag =5,pl = FALSE)
+t55 <- acf(err55, lag =5,pl = FALSE)
+t60 <- acf(err60, lag =5,pl = FALSE)
+t65 <- acf(err65, lag =5,pl = FALSE)
+t70 <- acf(err70, lag =5,pl = FALSE)
+t80 <- acf(err80, lag =5,pl = FALSE)
+par(mfrow=c(1,1))
+
+cv40 <- sd(err40) / mean(err40) 
+cv45 <- sd(err45) / mean(err45)
+cv50 <- sd(err50) / mean(err50)
+cv55 <- sd(err55) / mean(err55)
+cv60 <- sd(err60) / mean(err60)
+cv65 <- sd(err65) / mean(err65)
+cv70 <- sd(err70) / mean(err70)
+cv80 <- sd(err80) / mean(err80)
+
+cv <- c(cv40,cv45,cv50,cv55,cv60,cv65,cv70,cv80)
+ty <- c(t40$acf[2,1,1],t45$acf[2,1,1],t50$acf[2,1,1],t55$acf[2,1,1],t60$acf[2,1,1],
+        t65$acf[2,1,1],t70$acf[2,1,1],t80$acf[2,1,1])
+labes <- c('40','45','50','55','60','65','70','80')
+plot(cv,ty,xlab="coefficient of variation", ylab="autocorrelation at lag 1",)
+text(cv,ty-.02,labels = labes)
+
+```
+
+```{r,echo=FALSE}
+
+newh40$stab <- 0
+for (i in 5:length(newh40$variable))
+  newh40$stab[i] <- abs(newh40$value[i]-newh40$value[i-1]-1500)
+
+
+newh45$stab <- 0
+for (i in 2:length(newh45$variable))
+  newh45$stab[i] <- abs(newh45$value[i]-newh45$value[i-1]-1333)
+
+newh50$stab <- 0
+for (i in 2:length(newh50$variable))
+  newh50$stab[i] <- abs(newh50$value[i]-newh50$value[i-1]-1200)
+
+newh55$stab <- 0
+for (i in 2:length(newh55$variable))
+  newh55$stab[i] <- abs(newh55$value[i]-newh55$value[i-1]-1091)
+
+newh60$stab <- 0
+for (i in 2:length(newh60$variable))
+  newh60$stab[i] <- abs(newh60$value[i]-newh60$value[i-1]-1000)
+
+newh65$stab <- 0
+for (i in 2:length(newh65$variable))
+  newh65$stab[i] <- abs(newh65$value[i]-newh65$value[i-1]-923)
+
+newh70$stab <- 0
+for (i in 2:length(newh70$variable))
+  newh70$stab[i] <- abs(newh70$value[i]-newh70$value[i-1]-857)
+
+newh80$stab <- 0
+for (i in 2:length(newh80$variable))
+  newh80$stab[i] <- abs(newh80$value[i]-newh80$value[i-1]-750)
+
+
+
+
+
+new40 <- matrix(0,100,7)
+for (j in 1:7){
+  for (i in 5:length(newh40$stab)){
+    if ((i + j) < length(newh40$stab)) {
+      new40[i,j] <- abs((newh40$stab[i]-newh40$stab[i+j]))
+    }
+  }
+  
+}
+new40 <- data.frame(new40)
+
+bpm40lagOne <- subset(new40$X1, new40$X1!=0)
+bpm40lagTwo <- subset(new40$X2, new40$X2!=0)
+bpm40lagThree <- subset(new40$X3, new40$X3!=0)
+bpm40lagFour <- subset(new40$X4, new40$X4!=0)
+bpm40lagFive <- subset(new40$X5, new40$X5!=0)
+bpm40lagSix <- subset(new40$X6, new40$X6!=0)
+bpm40lagSeven <- subset(new40$X7, new40$X7!=0)
+
+med40LagOne <- median(bpm40lagOne)
+med40LagTwo <- median(bpm40lagTwo)
+med40LagThree <- median(bpm40lagThree)
+med40LagFour <- median(bpm40lagFour)
+med40LagFive <- median(bpm40lagFive)
+med40LagSix <- median(bpm40lagSix)
+med40LagSeven <- median(bpm40lagSeven)
+
+meds40 <- c(med40LagOne,med40LagTwo,med40LagThree,med40LagFour,
+                       med40LagFive,med40LagSix,med40LagSeven)
+lag <- 1:7
+meds40bpm <- data.frame(meds40,lag)
+
+
+
+new45 <- matrix(0,100,7)
+for (j in 1:7){
+  for (i in 5:length(newh45$stab)){
+    if ((i + j) < length(newh45$stab)) {
+      new45[i,j] <- abs((newh45$stab[i]-newh45$stab[i+j]))
+    }
+  }
+  
+}
+new45 <- data.frame(new45)
+
+bpm45lagOne <- subset(new45$X1, new45$X1!=0)
+bpm45lagTwo <- subset(new45$X2, new45$X2!=0)
+bpm45lagThree <- subset(new45$X3, new45$X3!=0)
+bpm45lagFour <- subset(new45$X4, new45$X4!=0)
+bpm45lagFive <- subset(new45$X5, new45$X5!=0)
+bpm45lagSix <- subset(new45$X6, new45$X6!=0)
+bpm45lagSeven <- subset(new45$X7, new45$X7!=0)
+
+med45LagOne <- median(bpm45lagOne)
+med45LagTwo <- median(bpm45lagTwo)
+med45LagThree <- median(bpm45lagThree)
+med45LagFour <- median(bpm45lagFour)
+med45LagFive <- median(bpm45lagFive)
+med45LagSix <- median(bpm45lagSix)
+med45LagSeven <- median(bpm45lagSeven)
+
+meds45 <- c(med45LagOne,med45LagTwo,med45LagThree,med45LagFour,
+            med45LagFive,med45LagSix,med45LagSeven)
+
+meds45bpm <- data.frame(meds45,lag)
+
+
+
+new50 <- matrix(0,100,7)
+for (j in 1:7){
+  for (i in 5:length(newh50$variable)){
+    if ((i + j) < length(newh50$variable)) {
+      new50[i,j] <- abs((newh50$stab[i]-newh50$stab[i+j]))
+    }
+  }
+  
+}
+new50 <- data.frame(new50)
+
+bpm50lagOne <- subset(new50$X1, new50$X1!=0)
+bpm50lagTwo <- subset(new50$X2, new50$X2!=0)
+bpm50lagThree <- subset(new50$X3, new50$X3!=0)
+bpm50lagFour <- subset(new50$X4, new50$X4!=0)
+bpm50lagFive <- subset(new50$X5, new50$X5!=0)
+bpm50lagSix <- subset(new50$X6, new50$X6!=0)
+bpm50lagSeven <- subset(new50$X7, new50$X7!=0)
+
+med50LagOne <- median(bpm50lagOne)
+med50LagTwo <- median(bpm50lagTwo)
+med50LagThree <- median(bpm50lagThree)
+med50LagFour <- median(bpm50lagFour)
+med50LagFive <- median(bpm50lagFive)
+med50LagSix <- median(bpm50lagSix)
+med50LagSeven <- median(bpm50lagSeven)
+
+meds50 <- c(med50LagOne,med50LagTwo,med50LagThree,med50LagFour,
+            med50LagFive,med50LagSix,med50LagSeven)
+meds50bpm <- data.frame(meds50,lag)
+
+
+
+
+
+
+new55 <- matrix(0,100,7)
+for (j in 1:7){
+  for (i in 5:length(newh55$variable)){
+    if ((i + j) < length(newh55$variable)) {
+      new55[i,j] <- abs((newh55$stab[i]-newh55$stab[i+j]))
+    }
+  }
+  
+}
+new55 <- data.frame(new55)
+
+bpm55lagOne <- subset(new55$X1, new55$X1!=0)
+bpm55lagTwo <- subset(new55$X2, new55$X2!=0)
+bpm55lagThree <- subset(new55$X3, new55$X3!=0)
+bpm55lagFour <- subset(new55$X4, new55$X4!=0)
+bpm55lagFive <- subset(new55$X5, new55$X5!=0)
+bpm55lagSix <- subset(new55$X6, new55$X6!=0)
+bpm55lagSeven <- subset(new55$X7, new55$X7!=0)
+
+med55LagOne <- median(bpm55lagOne)
+med55LagTwo <- median(bpm55lagTwo)
+med55LagThree <- median(bpm55lagThree)
+med55LagFour <- median(bpm55lagFour)
+med55LagFive <- median(bpm55lagFive)
+med55LagSix <- median(bpm55lagSix)
+med55LagSeven <- median(bpm55lagSeven)
+
+meds55 <- c(med55LagOne,med55LagTwo,med55LagThree,med55LagFour,
+            med55LagFive,med55LagSix,med55LagSeven)
+meds55bpm <- data.frame(meds55,lag)
+
+
+new60 <- matrix(0,100,7)
+for (j in 1:7){
+  for (i in 5:length(newh60$variable)){
+    if ((i + j) < length(newh60$variable)) {
+      new60[i,j] <- abs((newh60$stab[i]-newh60$stab[i+j]))
+    }
+  }
+  
+}
+new60 <- data.frame(new60)
+
+bpm60lagOne <- subset(new60$X1, new60$X1!=0)
+bpm60lagTwo <- subset(new60$X2, new60$X2!=0)
+bpm60lagThree <- subset(new60$X3, new60$X3!=0)
+bpm60lagFour <- subset(new60$X4, new60$X4!=0)
+bpm60lagFive <- subset(new60$X5, new60$X5!=0)
+bpm60lagSix <- subset(new60$X6, new60$X6!=0)
+bpm60lagSeven <- subset(new60$X7, new60$X7!=0)
+
+med60LagOne <- median(bpm60lagOne)
+med60LagTwo <- median(bpm60lagTwo)
+med60LagThree <- median(bpm60lagThree)
+med60LagFour <- median(bpm60lagFour)
+med60LagFive <- median(bpm60lagFive)
+med60LagSix <- median(bpm60lagSix)
+med60LagSeven <- median(bpm60lagSeven)
+
+meds60 <- c(med60LagOne,med60LagTwo,med60LagThree,med60LagFour,
+            med60LagFive,med60LagSix,med60LagSeven)
+meds60bpm <- data.frame(meds60,lag)
+
+
+
+new65 <- matrix(0,100,7)
+for (j in 1:7){
+  for (i in 5:length(newh65$variable)){
+    if ((i + j) < length(newh65$variable)) {
+      new65[i,j] <- abs((newh65$stab[i]-newh65$stab[i+j]))
+    }
+  }
+  
+}
+new65 <- data.frame(new65)
+
+bpm65lagOne <- subset(new65$X1, new65$X1!=0)
+bpm65lagTwo <- subset(new65$X2, new65$X2!=0)
+bpm65lagThree <- subset(new65$X3, new65$X3!=0)
+bpm65lagFour <- subset(new65$X4, new65$X4!=0)
+bpm65lagFive <- subset(new65$X5, new65$X5!=0)
+bpm65lagSix <- subset(new65$X6, new65$X6!=0)
+bpm65lagSeven <- subset(new65$X7, new65$X7!=0)
+
+med65LagOne <- median(bpm65lagOne)
+med65LagTwo <- median(bpm65lagTwo)
+med65LagThree <- median(bpm65lagThree)
+med65LagFour <- median(bpm65lagFour)
+med65LagFive <- median(bpm65lagFive)
+med65LagSix <- median(bpm65lagSix)
+med65LagSeven <- median(bpm65lagSeven)
+
+meds65 <- c(med65LagOne,med65LagTwo,med65LagThree,med65LagFour,
+            med65LagFive,med65LagSix,med65LagSeven)
+meds65bpm <- data.frame(meds65,lag)
+
+
+
+new70 <- matrix(0,100,7)
+for (j in 1:7){
+  for (i in 5:length(newh70$variable)){
+    if ((i + j) < length(newh70$variable)) {
+      new70[i,j] <- abs((newh70$stab[i]-newh70$stab[i+j]))
+    }
+  }
+  
+}
+new70 <- data.frame(new70)
+
+bpm70lagOne <- subset(new70$X1, new70$X1!=0)
+bpm70lagTwo <- subset(new70$X2, new70$X2!=0)
+bpm70lagThree <- subset(new70$X3, new70$X3!=0)
+bpm70lagFour <- subset(new70$X4, new70$X4!=0)
+bpm70lagFive <- subset(new70$X5, new70$X5!=0)
+bpm70lagSix <- subset(new70$X6, new70$X6!=0)
+bpm70lagSeven <- subset(new70$X7, new70$X7!=0)
+
+med70LagOne <- median(bpm70lagOne)
+med70LagTwo <- median(bpm70lagTwo)
+med70LagThree <- median(bpm70lagThree)
+med70LagFour <- median(bpm70lagFour)
+med70LagFive <- median(bpm70lagFive)
+med70LagSix <- median(bpm70lagSix)
+med70LagSeven <- median(bpm70lagSeven)
+
+meds70 <- c(med70LagOne,med70LagTwo,med70LagThree,med70LagFour,
+            med70LagFive,med70LagSix,med70LagSeven)
+meds70bpm <- data.frame(meds70,lag)
+
+
+
+
+new80 <- matrix(0,100,7)
+for (j in 1:7){
+  for (i in 5:length(newh80$variable)){
+    if ((i + j) < length(newh80$variable)) {
+      new80[i,j] <- abs((newh80$stab[i]-newh80$stab[i+j]))
+    }
+  }
+  
+}
+new80 <- data.frame(new80)
+
+bpm80lagOne <- subset(new80$X1, new80$X1!=0)
+bpm80lagTwo <- subset(new80$X2, new80$X2!=0)
+bpm80lagThree <- subset(new80$X3, new80$X3!=0)
+bpm80lagFour <- subset(new80$X4, new80$X4!=0)
+bpm80lagFive <- subset(new80$X5, new80$X5!=0)
+bpm80lagSix <- subset(new80$X6, new80$X6!=0)
+bpm80lagSeven <- subset(new80$X7, new80$X7!=0)
+
+med80LagOne <- median(bpm80lagOne)
+med80LagTwo <- median(bpm80lagTwo)
+med80LagThree <- median(bpm80lagThree)
+med80LagFour <- median(bpm80lagFour)
+med80LagFive <- median(bpm80lagFive)
+med80LagSix <- median(bpm80lagSix)
+med80LagSeven <- median(bpm80lagSeven)
+
+
+meds80 <- c(med80LagOne,med80LagTwo,med80LagThree,med80LagFour,
+            med80LagFive,med80LagSix,med80LagSeven)
+meds80bpm <- data.frame(meds80,lag)
+meds <- data.frame(meds40, meds45, meds50, meds60, meds70, meds80)
+
+```
+
+model coefficients and diffusion rate
+
+```{r,echo=FALSE}
+fortyMod <- lm(meds40 ~ lag, data = meds40bpm)
+#summary(fortyMod)
+
+fortyFiveMod <- lm(meds45 ~ lag, data = meds45bpm)
+#summary(fortyFiveMod)
+
+fiftyMod <- lm(meds50 ~ lag, data = meds50bpm)
+#summary(fiftyMod)
+
+fiftyFiveMod <- lm(meds55 ~ lag, data = meds55bpm)
+#summary(fiftyFiveMod)
+
+sixtyMod <- lm(meds60 ~ lag, data = meds60bpm)
+#summary(sixtyMod)
+
+sixtyFiveMod <- lm(meds65 ~ lag, data = meds65bpm)
+#summary(sixtyFiveMod)
+
+seventyMod <- lm(meds70 ~ lag, data = meds70bpm)
+#summary(seventyMod)
+
+eightyMod <- lm(meds80 ~ lag, data = meds80bpm)
+#summary(eightyMod)
+
+coeffs <- c(fortyMod$coefficients[2],fortyFiveMod$coefficients[2],
+            fiftyMod$coefficients[2],fiftyFiveMod$coefficients[2],
+            sixtyMod$coefficients[2],sixtyFiveMod$coefficients[2],
+            seventyMod$coefficients[2],eightyMod$coefficients[2])
+x <- c(40,45,50,55,60,65,70,80)
+lmp <- function (modelobject) {
+  if (class(modelobject) != "lm") stop("Not an object of class 'lm' ")
+  f <- summary(modelobject)$fstatistic
+  p <- pf(f[1],f[2],f[3],lower.tail=F)
+  attributes(p) <- NULL
+  return(p)
+}
+ps <- c(lmp(fortyMod),lmp(fortyFiveMod),lmp(fiftyMod),lmp(fiftyFiveMod),
+           lmp(sixtyMod),lmp(sixtyFiveMod),lmp(seventyMod),lmp(eightyMod))
+dif <- data.frame(x,coeffs,ps)
+dif
+ggplot(dif, aes(x = x, y = coeffs)) +
+  geom_line() +
+  ggtitle("diffusion rate") +
+  theme_classic()
+```
+
+
