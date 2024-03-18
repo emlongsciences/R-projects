@@ -1,6 +1,4 @@
 ---
-#title: \sffamily \textcolor{teal}{Michael Long, PhD Candidate}
-#subtitle: _\textsf{\textcolor{teal}{Cognitive Psychologist}}_
 fontsize: 12pt
 output:
   pdf_document:
@@ -10,7 +8,7 @@ output:
 \normalsize
 \singlespacing
 # \centering \onehalfspacing \Large \textsf{ \textcolor{teal}{Michael Long, PhD Candidate\vspace{-1em}}}
-## \centering \large  _\textsf{\textcolor{teal}{Psycholinguist/Product Designer}}_
+## \centering \large  _\textsf{\textcolor{teal}{Research Scientist/Psycholinguist}}_
  
 \centerline {904-557-1044}\centerline {
 emlongsciences@gmail.com}\centerline {
@@ -18,15 +16,14 @@ github.com/emlongsciences}\centerline {
 (R Markdown version of resumé available on github)\vspace{-.5em}}
 
 # \Large \textsf{\textcolor{teal}{Objective\vspace{-1em}}}
-Seeking the position of Product Designer using my expertise in Psycholinguistics, experience in product design and iteration, and skills in Experimental Design & Analysis\vspace{-2em}
+Seeking the position of Research Scientist using my expertise in Psycholinguistics and Experimental Design & Analysis and my skills in leadership and communication\vspace{-2em}
 
 # \Large \textsf{\textcolor{teal}{Highlights/Skills\vspace{-1em}}}
 -   Psycholinguistics and Cognitive Science -- Advanced knowledge in language production and comprehension, discourse processes, attention and memory
--   Product Design -- Developed tools used to measure various effects in language
--   Project Management -- Managed teams of researchers on several projects
--   Experimental Research -- Expertise in Experimental Design; data-collection methods include behavioral measures, eye tracking, surveys
--   Senior Data Analyst -- Planned and executed inferential statistical analyses using several approaches; consulted on various projects and taught data analysis course
--   Programming Knowledge -- _R_, _Python_, _MATLAB_, _E-Prime_, _PsyToolkit_, _Qualtrics_\vspace{-2em}
+-   Lead Research Scientist -- Managed teams of researchers on various research projects
+-   Experimentation -- Expertise in Experimental Design; methodologies include behavioral measures, corpus studies, surveys
+-   Senior Data Analyst -- Specialization in regression models; led the planning and execution of statistical analyses on large projects; consulted on various projects and taught data analysis course in *R*
+-   Programming Expertise -- _R_, _Python_, _MATLAB_, _E-Prime_, _PsyToolkit_, _Qualtrics_\vspace{-2em}
 
 # \Large \textsf{\textcolor{teal}{Education\vspace{-1em}}}
 ## \textsf {\normalsize \textbf Doctor of Philosophy, Cognition and Cognitive Neuroscience -- 2024\vspace{-1em}}
@@ -40,7 +37,7 @@ Seeking the position of Product Designer using my expertise in Psycholinguistics
 -   Florida Atlantic University\vspace{-2em}
 
 # \Large \textsf {\textcolor{teal}{Experience}\vspace{-1em}}
-## \textsf {\large \textbf Lead Scientist\vspace{-1em}}
+## \textsf {\large \textbf Lead Research Scientist\vspace{-1em}}
 ### \textsf {\normalsize Learning, Memory, and Language Lab -- 2021-current\vspace{-1em}}
 -   Managed several research projects examining language production and other cognitive processes
 -   Examined decision-making process in language production by testing relationship between spatial language and motor-action planning
@@ -52,8 +49,9 @@ Seeking the position of Product Designer using my expertise in Psycholinguistics
 ### \textsf {\normalsize \textbf Numerous projects in Cognitive Psychology; Linguistics; Philosophy\vspace{-1em}}
 -   Managed small and large data sets 
 -   Used several analytical approaches to answer various research questions
--   Communicated findings to diverse audiences through interpretation of statistical results
--   Expertise in inferential statistical methods including Mixed Effects Modeling and Bayesian statistics\vspace{-2em}
+-   Communicated findings to diverse audiences through interpretation and translation of statistical results
+-   Expertise in predictive statistical methods including Mixed Effects Regression Modeling and Bayesian statistics
+-   Introductory knowledge of LLM/GPT learned in graduate course "Python for Linguistics"\vspace{-2em}
 
 ## \textsf {\large \textbf Leadership Experience\vspace{-1em}}
 ### \textsf {\normalsize \textbf Learning, Memory, and Language Lab (2019-current)\vspace{-1em}}
@@ -71,6 +69,10 @@ Seeking the position of Product Designer using my expertise in Psycholinguistics
 
 ### \textsf {\normalsize \textbf "sum(R) c('a','m','p')" -- Introduction to R for Psychological Research (2023)\vspace{-1em}}
 -   Taught basics of *R* programming language with focus on data analysis, visualization, and presentation
+-   Implemented program and developed custom curriculum
+
+
+
 -   Implemented program and developed custom curriculum
 
 
